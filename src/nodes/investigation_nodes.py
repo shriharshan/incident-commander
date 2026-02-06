@@ -343,7 +343,7 @@ def report_node(state: IncidentState) -> Dict:
     upload_result = upload_report_to_s3(report, state["incident_id"])
     if upload_result:
         print(f"✅ Report uploaded to S3: {upload_result['s3_uri']}")
-        print(f"🔗 Presigned URL (valid 1h): {upload_result['presigned_url']}")
+        # Presigned URL not logged for security. Use CLI to generate if needed.
 
     # Generate chain of thought
     chain_of_thought = [
