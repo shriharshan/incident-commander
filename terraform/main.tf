@@ -51,3 +51,27 @@ output "function_url" {
 output "log_group_name" {
   value = module.lambda.log_group_name
 }
+
+# S3 Bucket for RCA Reports
+resource "aws_s3_bucket" "reports_bucket" {
+  bucket_prefix = "incident-commander-reports-"
+  force_destroy = true
+
+  tags = {
+    Name        = "Incident Commander Reports"
+    Environment = "Demo"
+  }
+}
+
+resource "aws_s3_bucket_public_access_block" "reports_bucket_public_access" {
+  bucket = aws_s3_bucket.reports_bucket.id
+
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
+}
+
+output "reports_bucket_name" {
+  value = aws_s3_bucket.reports_bucket.id
+}
