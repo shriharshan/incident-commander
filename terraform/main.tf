@@ -11,14 +11,6 @@ terraform {
 
 provider "aws" {
   region = var.aws_region
-  
-  default_tags {
-    tags = {
-      Project     = "incident-commander"
-      Environment = var.environment
-      ManagedBy   = "terraform"
-    }
-  }
 }
 
 module "lambda" {

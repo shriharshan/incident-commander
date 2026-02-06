@@ -16,7 +16,6 @@ resource "aws_lambda_function" "incident_commander" {
       OPENAI_MODEL         = "gpt-4"
       LOG_GROUP_NAME       = var.demo_log_group
       DEMO_FUNCTION_NAME   = var.demo_function_name
-      AWS_REGION           = data.aws_region.current.name
     }
   }
   

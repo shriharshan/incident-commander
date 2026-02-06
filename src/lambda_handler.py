@@ -13,8 +13,28 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-from .graph import create_commander_graph
-from .state import IncidentState
+# Fix relative imports for Lambda runtime
+try:
+    from graph import create_commander_graph
+    from state import IncidentState
+    from subscription_handler import (
+        is_subscription_event,
+        parse_subscription_event,
+        categorize_errors,
+        should_trigger_investigation,
+        create_incident_context,
+    )
+except ImportError:
+    # Fallback for local testing or if structure is preserved
+    from .graph import create_commander_graph
+    from .state import IncidentState
+    from .subscription_handler import (
+        is_subscription_event,
+        parse_subscription_event,
+        categorize_errors,
+        should_trigger_investigation,
+        create_incident_context,
+    )
 
 
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
@@ -22,7 +42,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     Lambda handler for incident investigation
 
     Args:
-        event: Lambda event with alert data
+        event: Lambda event with alert data or CloudWatch Logs event
         context: Lambda context
 
     Returns:
@@ -30,20 +50,55 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     """
 
     print(f"🚀 Incident Commander invoked")
-    print(f"Request ID: {context.request_id}")
+    print(f"Request ID: {context.aws_request_id}")
 
-    # Parse alert from event
-    if "body" in event:
+    # Handle CloudWatch Logs Subscription Event
+    if is_subscription_event(event):
+        try:
+            print("📦 Received CloudWatch Subscription Event")
+            parsed_event = parse_subscription_event(event)
+            error_analysis = categorize_errors(parsed_event["error_events"])
+
+            print(
+                f"📊 Parsed {len(parsed_event['log_events'])} logs. Found {error_analysis['total_errors']} errors."
+            )
+
+            # Check if we should proceed with investigation
+            if not should_trigger_investigation(error_analysis):
+                print(
+                    f"⚠️ Skipping investigation: insufficient error signal (Rate: {error_analysis['error_rate_per_minute']}/min)"
+                )
+                return {
+                    "statusCode": 200,
+                    "body": json.dumps({"status": "skipped", "reason": "insufficient_errors"}),
+                }
+
+            # Create incident context from subscription data
+            incident_ctx = create_incident_context(parsed_event, error_analysis)
+            alert = incident_ctx
+            incident_id = incident_ctx["incident_id"]
+
+        except Exception as e:
+            print(f"❌ Failed to parse subscription event: {e}")
+            import traceback
+
+            traceback.print_exc()
+            return {"statusCode": 500, "body": json.dumps({"error": "Event parsing failed"})}
+
+    # Handle Standard/HTTP Event
+    elif "body" in event:
         body = json.loads(event["body"])
         alert = body.get("alert", body)
+        incident_id = f"INC-{context.aws_request_id[:8].upper()}"
     else:
         alert = event
+        incident_id = f"INC-{context.aws_request_id[:8].upper()}"
 
-    print(f"Alert: {alert.get('service')} - {alert.get('metric')}")
+    print(f"Alert: {alert.get('service', 'unknown')} - {alert.get('metric', 'unknown')}")
 
     # Initialize state
     initial_state = IncidentState(
-        incident_id=f"INC-{context.request_id[:8].upper()}",
+        incident_id=incident_id,
         trigger_time=datetime.now().isoformat(),
         status="detecting",
         alert=alert,
