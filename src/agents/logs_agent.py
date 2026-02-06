@@ -9,8 +9,8 @@ from datetime import datetime
 from langchain_openai import ChatOpenAI
 from langchain.prompts import ChatPromptTemplate
 
-from ..toolkits.logs_toolkit import search_logs, get_error_rate_over_time
-from ..state import IncidentState, AgentMessage
+from toolkits.logs_toolkit import search_logs, get_error_rate_over_time
+from state import IncidentState, AgentMessage
 
 
 class LogsAgent:

@@ -14,27 +14,16 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Fix relative imports for Lambda runtime
-try:
-    from graph import create_commander_graph
-    from state import IncidentState
-    from subscription_handler import (
-        is_subscription_event,
-        parse_subscription_event,
-        categorize_errors,
-        should_trigger_investigation,
-        create_incident_context,
-    )
-except ImportError:
-    # Fallback for local testing or if structure is preserved
-    from .graph import create_commander_graph
-    from .state import IncidentState
-    from .subscription_handler import (
-        is_subscription_event,
-        parse_subscription_event,
-        categorize_errors,
-        should_trigger_investigation,
-        create_incident_context,
-    )
+# Removed try/except to expose real import errors
+from graph import create_commander_graph
+from state import IncidentState
+from subscription_handler import (
+    is_subscription_event,
+    parse_subscription_event,
+    categorize_errors,
+    should_trigger_investigation,
+    create_incident_context,
+)
 
 
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:

@@ -24,7 +24,7 @@ fi
 
 # We really need dependencies like langgraph, openai.
 # Let's install them to package dir using pip
-pip install "langgraph" "openai" "boto3" "aws-lambda-powertools" "python-dotenv" -t package/ --no-cache-dir --quiet
+pip install "langgraph" "openai" "boto3" "aws-lambda-powertools" "python-dotenv" "langchain-openai" "langchain" --platform manylinux2014_x86_64 --target package/ --implementation cp --python-version 3.12 --only-binary=:all: --upgrade --no-cache-dir --quiet
 
 # Copy src content to root of package
 cp -r src/* package/

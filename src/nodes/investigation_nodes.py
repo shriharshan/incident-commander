@@ -9,8 +9,8 @@ from typing import Dict
 from datetime import datetime
 from langchain_openai import ChatOpenAI
 
-from ..state import IncidentState, AgentMessage
-from ..agents import LogsAgent, MetricsAgent, DeployAgent
+from state import IncidentState, AgentMessage
+from agents import LogsAgent, MetricsAgent, DeployAgent
 
 
 def detect_node(state: IncidentState) -> Dict:

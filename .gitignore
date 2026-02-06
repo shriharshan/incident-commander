@@ -38,6 +38,8 @@ package/
 **/.terraform/
 *.tfstate
 *.tfstate.backup
+*.tfplan
+tfplan
 .terraform.lock.hcl
 
 # LangChain

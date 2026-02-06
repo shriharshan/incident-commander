@@ -8,8 +8,8 @@ from langgraph.graph import StateGraph, END
 from langchain_openai import ChatOpenAI
 import os
 
-from .state import IncidentState
-from .nodes import (
+from state import IncidentState
+from nodes import (
     detect_node,
     plan_node,
     investigate_node,
