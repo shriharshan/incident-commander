@@ -7,7 +7,7 @@ Analyzes CloudTrail to correlate deployments with incidents.
 from typing import Dict
 from datetime import datetime
 from langchain_openai import ChatOpenAI
-from langchain.prompts import ChatPromptTemplate
+from langchain_core.prompts import ChatPromptTemplate
 
 from toolkits.deploy_toolkit import get_recent_deploys, correlate_deploy_with_incident
 from state import IncidentState, AgentMessage

@@ -178,7 +178,7 @@ def decide_node(state: IncidentState, llm: ChatOpenAI) -> Dict:
     print("🎯 PHASE: DECIDE")
     print("=" * 60)
 
-    from langchain.prompts import ChatPromptTemplate
+    from langchain_core.prompts import ChatPromptTemplate
 
     prompt = ChatPromptTemplate.from_messages(
         [

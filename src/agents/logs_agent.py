@@ -7,7 +7,7 @@ Analyzes CloudWatch Logs to identify error patterns and stack traces.
 from typing import Dict
 from datetime import datetime
 from langchain_openai import ChatOpenAI
-from langchain.prompts import ChatPromptTemplate
+from langchain_core.prompts import ChatPromptTemplate
 
 from toolkits.logs_toolkit import search_logs, get_error_rate_over_time
 from state import IncidentState, AgentMessage

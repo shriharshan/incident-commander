@@ -7,7 +7,7 @@ Analyzes CloudWatch Metrics to detect performance spikes and anomalies.
 from typing import Dict
 from datetime import datetime
 from langchain_openai import ChatOpenAI
-from langchain.prompts import ChatPromptTemplate
+from langchain_core.prompts import ChatPromptTemplate
 
 from toolkits.metrics_toolkit import query_metrics, detect_anomalies
 from state import IncidentState, AgentMessage
