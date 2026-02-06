@@ -338,6 +338,7 @@ def report_node(state: IncidentState) -> Dict:
 
     print("✅ RCA Report generated")
     print(f"   Length: {len(report)} characters")
+    print("\n" + report + "\n")  # Print full report for logs
 
     # Generate chain of thought
     chain_of_thought = [
