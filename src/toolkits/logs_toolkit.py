@@ -188,8 +188,8 @@ def get_error_rate_over_time(time_window_minutes: int = 30, bin_minutes: int = 5
     query = f"""
     fields @timestamp
     | filter level = "ERROR"
-    | stats count() as error_count by bin({bin_minutes}m)
-    | sort bin({bin_minutes}m) asc
+    | stats count() as error_count by bin({bin_minutes}m) as time_bucket
+    | sort time_bucket asc
     """
 
     print(f"📈 Analyzing error rate trend ({time_window_minutes}min window, {bin_minutes}min bins)")
@@ -213,7 +213,7 @@ def get_error_rate_over_time(time_window_minutes: int = 30, bin_minutes: int = 5
             fields = {r["field"]: r["value"] for r in result}
             time_series.append(
                 {
-                    "timestamp": fields.get(f"bin({bin_minutes}m)", ""),
+                    "timestamp": fields.get("time_bucket", ""),
                     "error_count": int(fields.get("error_count", 0)),
                 }
             )
