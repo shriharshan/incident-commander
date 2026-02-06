@@ -22,6 +22,7 @@ module "lambda" {
   openai_api_key    = var.openai_api_key
   demo_log_group    = var.demo_log_group
   demo_function_name = var.demo_function_name
+  reports_bucket_name = aws_s3_bucket.reports_bucket.id
 }
 
 data "aws_caller_identity" "current" {}

@@ -11,6 +11,7 @@ from langchain_openai import ChatOpenAI
 
 from state import IncidentState, AgentMessage
 from agents import LogsAgent, MetricsAgent, DeployAgent
+from utils import parse_llm_json, upload_report_to_s3
 
 
 def detect_node(state: IncidentState) -> Dict:
@@ -237,9 +238,7 @@ Synthesize these findings and determine the root cause.""",
             }
         )
 
-        import json
-
-        decision = json.loads(response.content)
+        decision = parse_llm_json(response.content)
 
         print(f"✅ ROOT CAUSE IDENTIFIED")
         print(f"   Cause: {decision['root_cause']}")
@@ -339,6 +338,12 @@ def report_node(state: IncidentState) -> Dict:
     print("✅ RCA Report generated")
     print(f"   Length: {len(report)} characters")
     print("\n" + report + "\n")  # Print full report for logs
+
+    # Upload to S3
+    upload_result = upload_report_to_s3(report, state["incident_id"])
+    if upload_result:
+        print(f"✅ Report uploaded to S3: {upload_result['s3_uri']}")
+        print(f"🔗 Presigned URL (valid 1h): {upload_result['presigned_url']}")
 
     # Generate chain of thought
     chain_of_thought = [

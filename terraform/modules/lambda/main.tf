@@ -16,6 +16,7 @@ resource "aws_lambda_function" "incident_commander" {
       OPENAI_MODEL         = "gpt-4"
       LOG_GROUP_NAME       = var.demo_log_group
       DEMO_FUNCTION_NAME   = var.demo_function_name
+      REPORTS_BUCKET       = var.reports_bucket_name
     }
   }
   
@@ -129,10 +130,35 @@ resource "aws_iam_policy" "cloudtrail_read" {
   })
 }
 
-resource "aws_iam_role_policy_attachment" "cloudtrail_read" {
-  role       = aws_iam_role.lambda_exec.name
-  policy_arn = aws_iam_policy.cloudtrail_read.arn
+
+# S3 Write Policy for Reports
+resource "aws_iam_policy" "s3_write" {
+  name = "${var.function_name}-s3-write"
+  
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "s3:PutObject",
+          "s3:PutObjectAcl",
+          "s3:ListBucket"
+        ]
+        Resource = [
+          "arn:aws:s3:::incident-commander-reports-*",
+          "arn:aws:s3:::incident-commander-reports-*/*"
+        ]
+      }
+    ]
+  })
 }
+
+resource "aws_iam_role_policy_attachment" "s3_write" {
+  role       = aws_iam_role.lambda_exec.name
+  policy_arn = aws_iam_policy.s3_write.arn
+}
+
 
 # CloudWatch Logs for Commander
 resource "aws_cloudwatch_log_group" "lambda_logs" {

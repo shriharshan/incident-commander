@@ -11,6 +11,7 @@ from langchain_core.prompts import ChatPromptTemplate
 
 from toolkits.logs_toolkit import search_logs, get_error_rate_over_time
 from state import IncidentState, AgentMessage
+from utils import parse_llm_json
 
 
 class LogsAgent:
@@ -101,9 +102,8 @@ Analyze these logs and identify error patterns.""",
             )
 
             # Parse LLM response
-            import json
-
-            findings = json.loads(response.content)
+            # Parse LLM response
+            findings = parse_llm_json(response.content)
 
             print(f"[{self.name}] ✅ Analysis complete")
             print(f"   Primary error: {findings.get('primary_error')}")

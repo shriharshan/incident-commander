@@ -25,6 +25,11 @@ variable "demo_log_group" {
 }
 
 variable "demo_function_name" {
-  description = "Demo app function name"
+  description = "Name of the demo Lambda function"
+  type        = string
+}
+
+variable "reports_bucket_name" {
+  description = "Name of the S3 bucket for RCA reports"
   type        = string
 }

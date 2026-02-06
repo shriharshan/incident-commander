@@ -11,6 +11,7 @@ from langchain_core.prompts import ChatPromptTemplate
 
 from toolkits.deploy_toolkit import get_recent_deploys, correlate_deploy_with_incident
 from state import IncidentState, AgentMessage
+from utils import parse_llm_json
 
 
 class DeployAgent:
@@ -93,6 +94,7 @@ Analyze these deployments and determine if they caused the incident.""",
         else:
             print(f"[{self.name}] ⚠️ No timestamp found in alert, defaulting to current UTC time")
             from datetime import timezone
+
             incident_time = datetime.now(timezone.utc)
         correlation = correlate_deploy_with_incident(
             incident_time=incident_time, lookback_minutes=60
@@ -111,9 +113,8 @@ Analyze these deployments and determine if they caused the incident.""",
             )
 
             # Parse LLM response
-            import json
-
-            findings = json.loads(response.content)
+            # Parse LLM response
+            findings = parse_llm_json(response.content)
 
             print(f"[{self.name}] ✅ Analysis complete")
             print(f"   Deployment correlated: {findings.get('deployment_correlated')}")

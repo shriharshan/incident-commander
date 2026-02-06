@@ -11,6 +11,7 @@ from langchain_core.prompts import ChatPromptTemplate
 
 from toolkits.metrics_toolkit import query_metrics, detect_anomalies
 from state import IncidentState, AgentMessage
+from utils import parse_llm_json
 
 
 class MetricsAgent:
@@ -83,7 +84,15 @@ Analyze these metrics and identify performance issues.""",
         print(f"\n[{self.name}] Starting metrics investigation...")
 
         # Query multiple metrics
-        metrics_to_check = ["p99_latency_ms", "error_count", "invocations"]
+        # Query Golden Signals (Traffic, Latency, Errors, Saturation)
+        metrics_to_check = [
+            "ProcessingTime",      # Latency
+            "CheckoutFailures",    # Errors
+            "CheckoutRequests",    # Traffic
+            "db_timeout",          # Saturation (DB Connection Pool)
+            "db_pool_exhausted",   # Saturation 
+            "SlowQueries"          # Latency/Performance
+        ]
         metrics_data = {}
 
         for metric in metrics_to_check:
@@ -91,7 +100,8 @@ Analyze these metrics and identify performance issues.""",
             metrics_data[metric] = result
 
         # Detect anomalies
-        anomalies = detect_anomalies(service=service, metric="p99_latency_ms", lookback_hours=2)
+        # Detect anomalies on key latency metric
+        anomalies = detect_anomalies(service=service, metric="ProcessingTime", lookback_hours=2)
 
         # Prepare context for LLM
         chain = self.prompt | self.llm
@@ -106,9 +116,8 @@ Analyze these metrics and identify performance issues.""",
             )
 
             # Parse LLM response
-            import json
-
-            findings = json.loads(response.content)
+            # Parse LLM response using robust parser
+            findings = parse_llm_json(response.content)
 
             print(f"[{self.name}] ✅ Analysis complete")
             print(f"   Primary metric: {findings.get('primary_metric')}")
