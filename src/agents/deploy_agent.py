@@ -88,7 +88,12 @@ Analyze these deployments and determine if they caused the incident.""",
         deployments = get_recent_deploys(service=service, time_window_minutes=60)
 
         # Correlate with incident
-        incident_time = datetime.fromisoformat(incident_time_str.replace("Z", "+00:00"))
+        if incident_time_str:
+            incident_time = datetime.fromisoformat(incident_time_str.replace("Z", "+00:00"))
+        else:
+            print(f"[{self.name}] ⚠️ No timestamp found in alert, defaulting to current UTC time")
+            from datetime import timezone
+            incident_time = datetime.now(timezone.utc)
         correlation = correlate_deploy_with_incident(
             incident_time=incident_time, lookback_minutes=60
         )
